@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IRR Calculator</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        textarea {
+            width: 80%;
+            height: 120px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 22px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Internal Rate of Return (IRR) Calculator</h1>
+
+    <p>Enter Cash Flows (comma separated)</p>
+    <p>Example: -100,70,-50,130,50,40</p>
+
+    <textarea id="cashflows"></textarea><br>
+
+    <button onclick="calculateIRR()">Calculate IRR</button>
+
+    <div id="result"></div>
+
+    <script>
+        function npv(rate, cashflows) {
+            let total = 0;
+            for (let i = 0; i < cashflows.length; i++) {
+                total += cashflows[i] / Math.pow(1 + rate, i);
+            }
+            return total;
+        }
+
+        function calculateIRR() {
+            let input = document.getElementById("cashflows").value;
+            let cashflows = input.split(',').map(Number);
+
+            let low = 0.0;
+            let high = 1.0;
+            let mid;
+
+            // Expand range if needed
+            while (npv(high, cashflows) > 0) {
+                high *= 2;
+            }
+
+            // Binary search
+            for (let i = 0; i < 100; i++) {
+                mid = (low + high) / 2;
+                let value = npv(mid, cashflows);
+
+                if (value > 0) {
+                    low = mid;
+                } else {
+                    high = mid;
+                }
+            }
+
+            let irr = mid * 100;
+            document.getElementById("result").innerHTML =
+                "IRR = " + irr.toFixed(2) + " %";
+        }
+    </script>
+
+</body>
+</html>
